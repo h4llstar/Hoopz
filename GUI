@@ -51,7 +51,7 @@ local Button = MainTab:CreateButton({
     Name = "Auto Guard (U)",
     Callback = function()
         -- The function that takes place when the button is pressed
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/PunchMadeScript/Vision-Hoopz/refs/heads/main/Auto%20Guard"))();
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/Auto%20Guard"))();
     end,
 })
 
