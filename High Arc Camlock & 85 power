@@ -1,5 +1,5 @@
 -- Move PracticeArea if necessary
-local practiceArea = workspace:WaitForChild("PracticeArea", 5) -- Wait up to 5 seconds for PracticeArea
+local practiceArea = workspace:WaitForChild("PracticeArea", 5)
 if practiceArea then
     print("PracticeArea found.")
     local courts = workspace:FindFirstChild("Courts")
@@ -23,6 +23,19 @@ local Camera = workspace.CurrentCamera
 -- Set Power Value
 local power = 85
 
+-- Create a highlight effect
+local function CreateHighlight(torso)
+    local highlight = Instance.new("SelectionBox")
+    highlight.Adornee = torso
+    highlight.Parent = torso
+    highlight.LineThickness = 0.05
+    highlight.SurfaceTransparency = 0.2
+    highlight.Color3 = Color3.fromRGB(0, 255, 0) -- Green highlight
+    return highlight
+end
+
+local torsoHighlight = nil
+
 -- Wait for necessary UI objects
 local success, Button = pcall(function()
     return Player:WaitForChild("PlayerGui"):WaitForChild("PowerUI"):WaitForChild("CursorButton")
@@ -38,7 +51,7 @@ end
 -- Function to check if the player has a ball
 local function PlayerHasBall()
     local character = Player.Character or Player.CharacterAdded:Wait()
-    return character:FindFirstChild("Basketball") ~= nil -- Adjust if the ball has a different name
+    return character:FindFirstChild("Basketball") ~= nil
 end
 
 -- Function to find the closest goal
@@ -61,7 +74,7 @@ local function GetClosestGoal()
         end
     end
 
-    return closestGoal
+    return closestGoal, closestDistance
 end
 
 -- Function to determine the aiming vector based on distance
@@ -78,15 +91,50 @@ local function GetAimingVector(distance)
         elseif distance > 70 and distance < 74.2 then
             return Vector3.new(0, 16, 0)
         elseif distance > 74.3 and distance < 74.59 then
-            return Vector3.new(0, 8, 0)
+            return Vector3.new(0, 6, 0)
         end
     end
-    return Vector3.new(0, 0, 0) -- Default if no condition is met
+    return Vector3.new(0, 0, 0)
+end
+
+-- Function to check if the player is within range
+local function IsWithinRange(distance)
+    return (
+        (distance > 57 and distance < 60) or
+        (distance > 61 and distance < 64) or
+        (distance > 65 and distance < 68) or
+        (distance > 69 and distance < 69) or
+        (distance > 70 and distance < 74.2) or
+        (distance > 74.3 and distance < 74.59)
+    )
 end
 
 -- Variables to manage camera locking
 local isLocking = false
 local connection
+
+-- Function to update highlighting continuously
+local function UpdateHighlight()
+    RunService.RenderStepped:Connect(function()
+        local closestGoal, distance = GetClosestGoal()
+        local character = Player.Character or Player.CharacterAdded:Wait()
+        local torso = character:FindFirstChild("HumanoidRootPart")
+
+        if torso then
+            -- Apply highlighting if within range
+            if IsWithinRange(distance) then
+                if not torsoHighlight then
+                    torsoHighlight = CreateHighlight(torso)
+                end
+            else
+                if torsoHighlight then
+                    torsoHighlight:Destroy()
+                    torsoHighlight = nil
+                end
+            end
+        end
+    end)
+end
 
 -- Start locking the camera to the nearest goal
 local function StartLocking()
@@ -94,15 +142,14 @@ local function StartLocking()
     isLocking = true
 
     connection = RunService.RenderStepped:Connect(function()
-        local closestGoal = GetClosestGoal()
+        local closestGoal, distance = GetClosestGoal()
         if closestGoal then
             local character = Player.Character or Player.CharacterAdded:Wait()
             local torso = character:FindFirstChild("HumanoidRootPart")
 
             if torso then
-                local distance = (torso.Position - closestGoal.Position).Magnitude
+                -- Apply camera lock
                 local aimingVector = GetAimingVector(distance)
-
                 local goalPosition = closestGoal.Position + aimingVector
                 Camera.CFrame = CFrame.new(Camera.CFrame.Position, goalPosition)
             end
@@ -127,11 +174,17 @@ local function StopLocking()
         connection:Disconnect()
         connection = nil
     end
+
+    -- Remove highlight when locking stops
+    if torsoHighlight then
+        torsoHighlight:Destroy()
+        torsoHighlight = nil
+    end
 end
 
 -- Detect when the player jumps
 local function onJumping()
-    if PlayerHasBall() then -- Check if player has the ball before triggering
+    if PlayerHasBall() then
         print("Player jumped with the ball. Locking onto the closest goal.")
         StartLocking()
     else
@@ -149,3 +202,6 @@ humanoid.StateChanged:Connect(function(_, newState)
         StopLocking()
     end
 end)
+
+-- Start real-time range checking and highlighting
+UpdateHighlight()
