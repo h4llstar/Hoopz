@@ -62,3 +62,11 @@ local Button = MainTab:CreateButton({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/PC%20Camlock"))();
     end,
 })
+
+local Button = MainTab:CreateButton({
+    Name = "Mobile High Arc Camlock / Keep Power At 85",
+    Callback = function()
+        -- The function that takes place when the button is pressed
+        loadstring(gameloadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/High%20Arc%20Camlock%20%26%2085%20power"))();
+    end,
+})
