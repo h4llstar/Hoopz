@@ -40,10 +40,10 @@ local MainTab = Window:CreateTab("Main", nil) -- Title, Image
 local MainSection = MainTab:CreateSection("Useful") -- Changed 'Tab' to 'MainTab'
 
 local Button = MainTab:CreateButton({
-    Name = "Mobile Camlock",
+    Name = "Mobile Camlock & use 85 power",
     Callback = function()
         -- The function that takes place when the button is pressed
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/Mobile%20Camlock"))();
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/High%20Arc%20Camlock%20%26%2085%20power"))();
     end,
 })
 
