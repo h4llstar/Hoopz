@@ -62,3 +62,11 @@ local Button = MainTab:CreateButton({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/PC%20Camlock"))();
     end,
 })
+
+local Button = MainTab:CreateButton({
+    Name = "Mobile Normal Camlock",
+    Callback = function()
+        -- The function that takes place when the button is pressed
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/Mobile%20Camlock"))();
+    end,
+})
