@@ -39,11 +39,10 @@ local function PlayerHasBall()
     return character:FindFirstChild("Basketball") ~= nil 
 end
 
--- Function to find the closest goal and calculate shot angle
-local function GetPerfectShotDirection()
+-- Function to find the closest goal
+local function GetClosestGoal()
     local closestDistance = math.huge
     local closestGoal = nil
-    local shotVector = nil
 
     for _, obj in pairs(workspace.Courts:GetDescendants()) do
         if obj.Name == "Swish" and obj.Parent:IsA("BasePart") then
@@ -60,23 +59,36 @@ local function GetPerfectShotDirection()
         end
     end
 
-    if closestGoal then
-        -- Calculate the perfect shot trajectory
-        local targetPosition = closestGoal.Position + Vector3.new(0, 8, 0) -- Adjusted height
-        shotVector = (targetPosition - Camera.CFrame.Position).unit -- Aim at the perfect spot
-    end
-
-    return shotVector
+    return closestGoal
 end
 
--- Function to simulate shooting with perfect alignment but no visual lock
-local function ShootWithPerfectAim()
-    local shotVector = GetPerfectShotDirection()
+local isLocking = false
+local connection
 
-    if shotVector and PlayerHasBall() and Button then
-        print("Calculated shot direction:", shotVector)
+-- Start locking the camera to the nearest goal (instant and smooth)
+local function StartLocking()
+    if isLocking then return end
+    isLocking = true
 
-        -- Add a slight delay before simulating the shot
+    connection = RunService.RenderStepped:Connect(function()
+        local closestGoal = GetClosestGoal()
+        if closestGoal then
+            local character = Player.Character or Player.CharacterAdded:Wait()
+            local head = character:FindFirstChild("Head")
+
+            if head then
+                -- Aim precisely at (0, 8, 0) above the goal
+                local goalPosition = closestGoal.Position + Vector3.new(0, 8, 0)
+
+                -- Instant and smooth camera locking
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, goalPosition) -- Instant lock without delay
+            end
+        end
+    end)
+
+    -- Simulate button click (only if player has the ball)
+    if PlayerHasBall() and Button then
+        -- Add a 0.25-second delay before simulating the button click
         task.wait(0.25)
 
         -- Get Button Position
@@ -86,9 +98,20 @@ local function ShootWithPerfectAim()
         VirtualInputManager:SendMouseButtonEvent(buttonPosition.X, buttonPosition.Y, 0, true, game, 1)
         VirtualInputManager:SendMouseButtonEvent(buttonPosition.X, buttonPosition.Y, 0, false, game, 1)
 
-        print("Button clicked. Shot taken with perfect aim!")
+        print("Button clicked. Player had the ball.")
     else
-        warn("Player doesn't have the ball, or no valid shot direction found. Shot not triggered.")
+        warn("Player does not have the ball, shot not triggered.")
+    end
+end
+
+-- Stop locking the camera
+local function StopLocking()
+    if not isLocking then return end
+    isLocking = false
+
+    if connection then
+        connection:Disconnect()
+        connection = nil
     end
 end
 
@@ -98,9 +121,15 @@ local humanoid = character:WaitForChild("Humanoid")
 
 humanoid.Jumping:Connect(function()
     if PlayerHasBall() then
-        print("Player jumped with the ball. Shooting with perfect aim (no camera lock).")
-        ShootWithPerfectAim()
+        print("Player jumped with the ball. Locking onto the closest goal.")
+        StartLocking()
     else
-        print("Player jumped without the ball. No shot taken.")
+        print("Player jumped without the ball. No action taken.")
+    end
+end)
+
+humanoid.StateChanged:Connect(function(_, newState)
+    if newState == Enum.HumanoidStateType.Landed then
+        StopLocking()
     end
 end)
