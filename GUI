@@ -67,14 +67,8 @@ local Button = MainTab:CreateButton({
     Name = "Mobile Normal Camlock",
     Callback = function()
         -- The function that takes place when the button is pressed
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/Mobile%20Camlock"))();
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/Camlock%20with%20auto%20shoot%20for%20bigger%20phoned"))();
     end,
 })
 
-local Button = MainTab:CreateButton({
-    Name = "iPhone 15 pro max,
-    Callback = function()
-        -- The function that takes place when the button is pressed
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/kosta5630/Hoopz/refs/heads/main/Camlock%20with%20auto%20shoot%20for%20bigger%20phoned"))();
-     end,
-})
+
