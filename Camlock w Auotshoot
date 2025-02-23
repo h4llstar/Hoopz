@@ -70,4 +70,3 @@ end
 humanoid.Jumping:Connect(function() if PlayerHasBall() then StartLocking() end end)
 
 humanoid.StateChanged:Connect(function(_, newState) if newState == Enum.HumanoidStateType.Landed then StopLocking() end end)
-
