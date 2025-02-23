@@ -97,26 +97,23 @@ local function StartLocking()
 
     -- Simulate button click (only if player has the ball)
     if PlayerHasBall() and Button then
-        -- Add a 0.25-second delay before simulating the button click
-        task.wait(0.25)
+        task.wait(0.25) -- Delay before shooting
 
         -- Adjust button position based on screen size
         local screenSize = workspace.CurrentCamera.ViewportSize
         local buttonPosition = Button.AbsolutePosition + Button.AbsoluteSize / 2
-        local scaledX = buttonPosition.X / screenSize.X
-        local scaledY = buttonPosition.Y / screenSize.Y
+        local x, y = buttonPosition.X, buttonPosition.Y
 
-        -- Simulate real mouse click on the UI button
-        VirtualInputManager:SendMouseButtonEvent(
-            screenSize.X * scaledX, 
-            screenSize.Y * scaledY, 
-            0, true, game, 1
-        )
-        VirtualInputManager:SendMouseButtonEvent(
-            screenSize.X * scaledX, 
-            screenSize.Y * scaledY, 
-            0, false, game, 1
-        )
+        if IsMobile() then
+            -- Simulate touch input for mobile devices (iPhone 15 Pro Max)
+            VirtualInputManager:SendTouchEvent(x, y, 0, true, game)
+            task.wait(0.1) -- Small delay for touch hold
+            VirtualInputManager:SendTouchEvent(x, y, 0, false, game)
+        else
+            -- Simulate mouse click for PC
+            VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 1)
+            VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 1)
+        end
 
         print("Button clicked. Player had the ball.")
     else
