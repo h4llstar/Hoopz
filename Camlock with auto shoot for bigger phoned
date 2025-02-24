@@ -1,12 +1,12 @@
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local Player = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 -- Move PracticeArea if necessary
-local practiceArea = workspace:WaitForChild("PracticeArea", 5)
+local practiceArea = workspace:WaitForChild("PracticeArea", 5) 
 if practiceArea then
     print("PracticeArea found.")
     local courts = workspace:FindFirstChild("Courts")
@@ -36,7 +36,7 @@ end
 -- Function to check if the player has a ball
 local function PlayerHasBall()
     local character = Player.Character or Player.CharacterAdded:Wait()
-    return character:FindFirstChild("Basketball") ~= nil
+    return character:FindFirstChild("Basketball") ~= nil 
 end
 
 -- Function to find the closest goal
@@ -59,44 +59,60 @@ local function GetClosestGoal()
         end
     end
 
-    return closestGoal
+    return closestGoal, closestDistance
 end
 
 local isLocking = false
 local connection
 
--- Start locking the camera to the nearest goal (instant and smooth)
+-- Start locking the camera to the nearest goal (instant lock)
 local function StartLocking()
     if isLocking then return end
     isLocking = true
 
     connection = RunService.RenderStepped:Connect(function()
-        local closestGoal = GetClosestGoal()
+        local closestGoal, distance = GetClosestGoal()
         if closestGoal then
             local character = Player.Character or Player.CharacterAdded:Wait()
             local head = character:FindFirstChild("Head")
 
             if head then
-                -- Aim precisely at (0, 8, 0) above the goal
-                local goalPosition = closestGoal.Position + Vector3.new(0, 8, 0)
+                -- Default vector position above the goal
+                local vector = Vector3.new(0, 8, 0)
 
-                -- Smooth camera lock with tween
-                local currentPosition = Camera.CFrame.Position
-                local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-                local tween = TweenService:Create(Camera, tweenInfo, {CFrame = CFrame.new(currentPosition, goalPosition)})
-                tween:Play()
+                -- Adjust the vector based on the distance to the goal
+                if distance >= 58 and distance <= 61 then
+                    vector = Vector3.new(0, 9, 0)
+                elseif distance == 62 then
+                    vector = Vector3.new(0, 8, 0)
+                elseif distance == 63 then
+                    vector = Vector3.new(0, 14, 0)
+                elseif distance >= 67 and distance <= 72.4 then
+                    vector = Vector3.new(0, 19, 0)
+                end
+
+                -- Aim precisely at (0, 8, 0) above the goal
+                local goalPosition = closestGoal.Position + vector
+
+                -- Instant camera lock
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, goalPosition)
             end
         end
     end)
 
     -- Simulate button click (only if player has the ball)
     if PlayerHasBall() and Button then
-        task.wait(0.25) -- Delay before shooting
+        -- Add a 0.25-second delay before simulating the button click
+        task.wait(0.25)
 
-        -- Directly activate the button
-        Button:Activate()
-        
-        print("Button activated. Player had the ball.")
+        -- Get Button Position
+        local buttonPosition = Button.AbsolutePosition + Button.AbsoluteSize / 2
+
+        -- Simulate real mouse click on the UI button
+        VirtualInputManager:SendMouseButtonEvent(buttonPosition.X, buttonPosition.Y, 0, true, game, 1)
+        VirtualInputManager:SendMouseButtonEvent(buttonPosition.X, buttonPosition.Y, 0, false, game, 1)
+
+        print("Button clicked. Player had the ball.")
     else
         warn("Player does not have the ball, shot not triggered.")
     end
