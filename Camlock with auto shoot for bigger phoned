@@ -39,6 +39,20 @@ local function PlayerHasBall()
     return character:FindFirstChild("Basketball") ~= nil 
 end
 
+-- Function to adjust power based on distance
+local function AdjustPower(distance)
+    if distance >= 58 and distance <= 62 then
+        Player:SetAttribute("Power", 75)
+        print("Power set to 75 (distance:", distance, ")")
+    elseif distance >= 63 and distance <= 66 then
+        Player:SetAttribute("Power", 80)
+        print("Power set to 80 (distance:", distance, ")")
+    elseif distance >= 67 and distance <= 72.4 then
+        Player:SetAttribute("Power", 85)
+        print("Power set to 85 (distance:", distance, ")")
+    end
+end
+
 -- Function to find the closest goal
 local function GetClosestGoal()
     local closestDistance = math.huge
@@ -57,6 +71,11 @@ local function GetClosestGoal()
                 end
             end
         end
+    end
+
+    -- Adjust power when goal is found
+    if closestGoal then
+        AdjustPower(closestDistance)
     end
 
     return closestGoal, closestDistance
