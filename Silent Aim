@@ -39,6 +39,20 @@ local function PlayerHasBall()
     return character:FindFirstChild("Basketball") ~= nil 
 end
 
+-- Function to adjust power based on distance
+local function AdjustPower(distance)
+    if distance >= 58 and distance <= 62 then
+        Player:SetAttribute("Power", 75)
+        print("Power set to 75 (distance:", distance, ")")
+    elseif distance >= 63 and distance <= 66 then
+        Player:SetAttribute("Power", 80)
+        print("Power set to 80 (distance:", distance, ")")
+    elseif distance >= 67 and distance <= 72.4 then
+        Player:SetAttribute("Power", 85)
+        print("Power set to 85 (distance:", distance, ")")
+    end
+end
+
 -- Function to find the closest goal
 local function GetClosestGoal()
     local closestDistance = math.huge
@@ -59,29 +73,48 @@ local function GetClosestGoal()
         end
     end
 
-    return closestGoal
+    -- Adjust power when goal is found
+    if closestGoal then
+        AdjustPower(closestDistance)
+    end
+
+    return closestGoal, closestDistance
 end
 
 local isLocking = false
 local connection
 
--- Start locking the camera to the nearest goal (instant and smooth)
+-- Start locking the camera to the nearest goal (instant lock)
 local function StartLocking()
     if isLocking then return end
     isLocking = true
 
     connection = RunService.RenderStepped:Connect(function()
-        local closestGoal = GetClosestGoal()
+        local closestGoal, distance = GetClosestGoal()
         if closestGoal then
             local character = Player.Character or Player.CharacterAdded:Wait()
             local head = character:FindFirstChild("Head")
 
             if head then
-                -- Aim precisely at (0, 8, 0) above the goal
-                local goalPosition = closestGoal.Position + Vector3.new(0, 8, 0)
+                -- Default vector position above the goal
+                local vector = Vector3.new(0, 8, 0)
 
-                -- Instant and smooth camera locking
-                Camera.CFrame = CFrame.new(Camera.CFrame.Position, goalPosition) -- Instant lock without delay
+                -- Adjust the vector based on the distance to the goal
+                if distance >= 58 and distance <= 61 then
+                    vector = Vector3.new(0, 9, 0)
+                elseif distance == 62 then
+                    vector = Vector3.new(0, 8, 0)
+                elseif distance == 63 then
+                    vector = Vector3.new(0, 14, 0)
+                elseif distance >= 67 and distance <= 72.4 then
+                    vector = Vector3.new(0, 19, 0)
+                end
+
+                -- Aim precisely at (0, 8, 0) above the goal
+                local goalPosition = closestGoal.Position + vector
+
+                -- Instant camera lock
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, goalPosition)
             end
         end
     end)
