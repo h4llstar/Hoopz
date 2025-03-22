@@ -1,0 +1,204 @@
+-- Decompiled by Krnl
+
+local v1 = game:GetService("ReplicatedStorage")
+local v_u_2 = game:GetService("UserInputService")
+game:GetService("HapticService")
+local v_u_3 = game:GetService("TweenService")
+game:GetService("RunService")
+local v_u_4 = game:GetService("Players").LocalPlayer
+local v_u_5 = TweenInfo.new(0.05, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+local v_u_6 = script.Parent
+local v_u_7 = v_u_6.RadialBar
+local _ = v_u_7.CircularBar.Bar
+local v_u_8 = v_u_7.InnerBar
+local v_u_9 = v_u_7.Percent
+local v_u_10 = v1.SFX.PowerTick
+local v_u_11 = require(v1.Modules.ColorUtils)
+local v12 = TweenInfo.new(20, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, false, 0)
+local v13 = TweenInfo.new(1.75, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, false, 0)
+v_u_3:Create(v_u_8, v12, {
+["Rotation"] = 360
+}, {
+1,
+"Linear",
+"InOut",
+-1,
+false,
+0
+}):Play()
+v_u_3:Create(v_u_6.BallIcon.UIStroke.UIGradient, v13, {
+["Rotation"] = 360
+}, {
+1,
+"Linear",
+"InOut",
+-1,
+false,
+0
+}):Play()
+local v_u_14 = Instance.new("NumberValue")
+v_u_14.Value = 0
+v_u_14.Parent = v_u_7.CircularBarV2
+v_u_4:SetAttribute("Power", 75)
+local v_u_15 = Instance.new("Color3Value")
+local v_u_16 = v_u_4:GetAttribute("Power") or 75
+local function v28()
+-- upvalues: (copy) v_u_4, (copy) v_u_2, (copy) v_u_9, (copy) v_u_11, (copy) v_u_7, (copy) v_u_3, (copy) v_u_14, (copy) v_u_5, (copy) v_u_15, (copy) v_u_8, (copy) v_u_10, (copy) v_u_6, (ref) v_u_16
+local v17 = v_u_4:GetAttribute("Power") or 75
+local v18 = (v17 - 10) / 75
+local v19 = math.max(v18, 0.01)
+local v20 = v_u_2:GetConnectedGamepads()
+local v21 = Enum.UserInputType.None
+for _, v22 in v20 do
+if v22.Value < v21.Value then
+v21 = v22
+end
+end
+v_u_9.Text = v17
+v_u_9.Percent.Text = v17
+local v23 = Color3.fromHSV(v19 * 0.4722222222222222, 1, 1)
+local v24 = v_u_11:Brighten(v23, 1 - v_u_11:Brightness(v23), 0.25)
+local v25 = v_u_7.CircularBarV2
+v_u_3:Create(v_u_14, v_u_5, {
+["Value"] = v17
+}):Play()
+v_u_3:Create(v25.Right.ImageFill, v_u_5, {
+["ImageColor3"] = v23
+}):Play()
+v_u_3:Create(v25.Left.ImageFill, v_u_5, {
+["ImageColor3"] = v23
+}):Play()
+v_u_3:Create(v_u_15, v_u_5, {
+["Value"] = v24
+}):Play()
+v_u_3:Create(v_u_8, v_u_5, {
+["ImageColor3"] = v24
+}):Play()
+v_u_3:Create(v_u_7.vignettetest, v_u_5, {
+["ImageColor3"] = v24
+}):Play()
+v_u_10:Play()
+local v26 = v17 / 100
+v_u_6.Bar.Circle.PowerLabel.Text = v17
+local v27 = Color3.fromHSV(120 * ((v26 - 0.1) / 0.75) / 359, 0.5, 1)
+v_u_3:Create(v_u_6.Bar.Fill, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {
+["BackgroundColor3"] = v27,
+["Size"] = UDim2.new(1, 0, (v26 - 0.1) / 0.75, 0),
+["Position"] = UDim2.new(0, 0, 1 - (v26 - 0.1) / 0.75, 0)
+}):Play()
+v_u_3:Create(v_u_6.Bar.Circle, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {
+["Position"] = UDim2.new(0.5, 0, 1 - (v26 - 0.1) / 0.75, 0),
+["AnchorPoint"] = Vector2.new(0.5, 1 - (v26 - 0.1) / 0.75)
+}):Play()
+v_u_16 = v17
+end
+v28()
+local v_u_29 = v_u_6.BallIcon.UIStroke.UIGradient
+v_u_15.Changed:Connect(function()
+-- upvalues: (copy) v_u_29, (copy) v_u_15
+v_u_29.Color = ColorSequence.new(v_u_15.Value)
+end)
+v_u_14:GetPropertyChangedSignal("Value"):Connect(function()
+-- upvalues: (copy) v_u_7, (copy) v_u_14
+local v30 = v_u_7.CircularBarV2
+local v31 = v_u_14.Value * 3.6
+local v32 = math.clamp(v31, 0, 360)
+local v33 = math.floor(v32)
+v30.Right.ImageFill.UIGradient.Rotation = math.clamp(v33, 0, 180)
+v30.Left.ImageFill.UIGradient.Rotation = math.clamp(v33, 180, 360)
+end)
+v_u_4:GetAttributeChangedSignal("Power"):Connect(v28)
+local v_u_34 = false
+local v_u_35 = false
+local v_u_36 = Enum.KeyCode
+local v_u_37 = require(v1.Util.PlayerData)
+v_u_2.InputBegan:Connect(function(p38, p39)
+-- upvalues: (copy) v_u_36, (copy) v_u_37, (ref) v_u_34, (copy) v_u_4, (ref) v_u_35
+if p39 then
+return
+end
+if p38.KeyCode == v_u_36[v_u_37.Get("Controls_Keyboard", "Increase_power")] then
+v_u_34 = true
+repeat
+local v40 = v_u_4
+local v41 = v_u_4:GetAttribute("Power") + 5
+v40:SetAttribute("Power", (math.clamp(v41, 10, 85)))
+task.wait(0.1)
+until v_u_34 == false or v_u_4:GetAttribute("Power") >= 85
+::l6::
+return
+else
+if p38.KeyCode == v_u_36[v_u_37.Get("Controls_Controller", "Increase_power")] then
+local v42 = v_u_4
+local v43 = v_u_4:GetAttribute("Power") + 5
+v42:SetAttribute("Power", (math.clamp(v43, 10, 85)))
+return
+end
+if p38.KeyCode ~= v_u_36[v_u_37.Get("Controls_Keyboard", "Decrease_power")] then
+if p38.KeyCode == v_u_36[v_u_37.Get("Controls_Controller", "Decrease_power")] then
+local v44 = v_u_4
+local v45 = v_u_4:GetAttribute("Power") - 5
+v44:SetAttribute("Power", (math.clamp(v45, 10, 85)))
+end
+goto l6
+end
+v_u_35 = true
+while true do
+if v_u_35 then
+local v46 = v_u_4
+local v47 = v_u_4:GetAttribute("Power") - 5
+v46:SetAttribute("Power", (math.clamp(v47, 10, 85)))
+end
+task.wait(0.1)
+if v_u_35 == false or v_u_4:GetAttribute("Power") <= 10 then
+goto l6
+end
+end
+end
+end)
+local v_u_48 = require(v1.Util.PlayerData)
+local function v_u_50(p49)
+-- upvalues: (copy) v_u_6
+if p49 then
+v_u_6.BallIcon.UIStroke.Color = Color3.fromRGB(0, 0, 0)
+v_u_6.BallIcon.img.ImageColor3 = Color3.fromRGB(100, 100, 100)
+else
+v_u_6.BallIcon.UIStroke.Color = Color3.fromRGB(0, 200, 255)
+v_u_6.BallIcon.img.ImageColor3 = Color3.fromRGB(255, 255, 255)
+end
+end
+v_u_50(v_u_4:GetAttribute("NoSteal"))
+v_u_4:GetAttributeChangedSignal("NoSteal"):Connect(function()
+-- upvalues: (copy) v_u_50, (copy) v_u_4
+v_u_50(v_u_4:GetAttribute("NoSteal"))
+end)
+local function v52(p_u_51)
+-- upvalues: (copy) v_u_6, (copy) v_u_48, (copy) v_u_50, (copy) v_u_4
+p_u_51.ChildAdded:Connect(function()
+-- upvalues: (ref) v_u_6, (ref) v_u_48, (copy) p_u_51, (ref) v_u_50, (ref) v_u_4
+v_u_6.BallIcon.Visible = v_u_48.Get("Config", "ToolIcon") and p_u_51:FindFirstChild("Basketball") or false
+v_u_50(v_u_4:GetAttribute("NoSteal"))
+end)
+p_u_51.ChildRemoved:Connect(function()
+-- upvalues: (ref) v_u_6, (ref) v_u_48, (copy) p_u_51
+v_u_6.BallIcon.Visible = v_u_48.Get("Config", "ToolIcon") and p_u_51:FindFirstChild("Basketball") or false
+end)
+end
+if v_u_4.Character then
+v52(v_u_4.Character)
+end
+v_u_4.CharacterAdded:Connect(v52)
+local v_u_53 = v1.Remotes.noStealEvent
+v_u_6.BallIcon.MouseButton1Click:Connect(function()
+-- upvalues: (copy) v_u_53
+v_u_53:FireServer()
+end)
+v_u_2.InputEnded:Connect(function(p54)
+-- upvalues: (copy) v_u_36, (copy) v_u_48, (ref) v_u_34, (ref) v_u_35
+if p54.KeyCode == v_u_36[v_u_48.Get("Controls_Keyboard", "Increase_power")] then
+v_u_34 = false
+elseif p54.KeyCode == v_u_36[v_u_48.Get("Controls_Keyboard", "Decrease_power")] then
+v_u_35 = false
+end
+end)
+
