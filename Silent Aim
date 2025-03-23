@@ -27,10 +27,11 @@ local function PlayerHasBall()
     return character:FindFirstChild("Basketball") ~= nil 
 end
 
--- Function to find the closest goal
-local function GetClosestGoal()
+-- Function to find the closest goal and adjust power based on distance
+local function GetClosestGoalAndPower()
     local closestDistance = math.huge
     local closestGoal = nil
+    local power = 75  -- default power
 
     for _, obj in pairs(workspace.Courts:GetDescendants()) do
         if obj.Name == "Swish" and obj.Parent:IsA("BasePart") then
@@ -42,12 +43,41 @@ local function GetClosestGoal()
                 if distance < closestDistance then
                     closestDistance = distance
                     closestGoal = obj.Parent
+                    
+                    -- Adjust power based on distance
+                    if distance >= 58 and distance <= 62 then
+                        power = 75
+                    elseif distance > 62 and distance <= 68 then
+                        power = 80
+                    elseif distance > 68 and distance <= 71 then
+                        power = 85
+                    end
                 end
             end
         end
     end
 
-    return closestGoal
+    -- Set the power attribute
+    Player:SetAttribute("Power", power)
+    return closestGoal, power, closestDistance
+end
+
+-- Function to calculate the adjusted aim vector based on distance
+local function GetAdjustedAimVector(goalPosition, distance)
+    local distanceAdjustment = Vector3.new(0, 0, 0)
+
+    -- Adjust vectors based on different distance ranges
+    if distance >= 58 and distance <= 62 then
+        distanceAdjustment = Vector3.new(0, 31, 0)
+    elseif distance > 62 and distance <= 68 then
+        distanceAdjustment = Vector3.new(0, 45, 0)
+    elseif distance > 68 and distance <= 71 then
+        distanceAdjustment = Vector3.new(0, 52, 0)
+    end
+
+    -- Adjust the goal position with the calculated vector
+    local adjustedGoalPosition = goalPosition + distanceAdjustment
+    return adjustedGoalPosition
 end
 
 local isLocking = false
@@ -79,17 +109,18 @@ local function StartLocking()
     isLocking = true
 
     connection = RunService.RenderStepped:Connect(function()
-        local closestGoal = GetClosestGoal()
+        local closestGoal, power, closestDistance = GetClosestGoalAndPower()
         if closestGoal then
             local character = Player.Character or Player.CharacterAdded:Wait()
             local head = character:FindFirstChild("Head")
 
             if head then
-                -- Aim precisely at (0, 8, 0) above the goal
-                local goalPosition = closestGoal.Position + Vector3.new(0, 8, 0)
+                -- Adjust aim vector based on distance
+                local goalPosition = closestGoal.Position
+                local adjustedGoalPosition = GetAdjustedAimVector(goalPosition, closestDistance)
 
                 -- Instant and smooth camera locking
-                Camera.CFrame = CFrame.new(Camera.CFrame.Position, goalPosition) -- Instant lock without delay
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, adjustedGoalPosition) -- Instant lock without delay
             end
         end
     end)
