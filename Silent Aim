@@ -80,6 +80,29 @@ local function GetAdjustedAimVector(goalPosition, distance)
     return adjustedGoalPosition
 end
 
+-- Highlight the player's body when in range
+local function HighlightPlayerInRange(distance)
+    local character = Player.Character or Player.CharacterAdded:Wait()
+
+    -- Create the Highlight effect if it doesn't already exist
+    local highlight = character:FindFirstChild("Highlight")
+    if not highlight then
+        highlight = Instance.new("Highlight")
+        highlight.Name = "Highlight"
+        highlight.Parent = character
+        highlight.FillColor = Color3.fromRGB(255, 0, 0)  -- Set the color of the highlight (e.g., red)
+        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)  -- Set the outline color (e.g., white)
+        highlight.OutlineTransparency = 0  -- Full opacity for the outline
+    end
+
+    -- Check if player is in the distance range (58 - 71)
+    if distance >= 58 and distance <= 71 then
+        highlight.Enabled = true  -- Enable the highlight
+    else
+        highlight.Enabled = false  -- Disable the highlight if out of range
+    end
+end
+
 local isLocking = false
 local connection
 
@@ -122,6 +145,9 @@ local function StartLocking()
                 -- Instant and smooth camera locking
                 Camera.CFrame = CFrame.new(Camera.CFrame.Position, adjustedGoalPosition) -- Instant lock without delay
             end
+
+            -- Highlight player if in range (58-71)
+            HighlightPlayerInRange(closestDistance)
         end
     end)
 
@@ -166,5 +192,14 @@ end)
 humanoid.StateChanged:Connect(function(_, newState)
     if newState == Enum.HumanoidStateType.Landed then
         StopLocking()
+    end
+end)
+
+-- Continuous check for player distance and highlight while walking
+RunService.RenderStepped:Connect(function()
+    local closestGoal, power, closestDistance = GetClosestGoalAndPower()
+    if closestGoal then
+        -- Highlight player in real-time while walking
+        HighlightPlayerInRange(closestDistance)
     end
 end)
