@@ -49,7 +49,7 @@ local function GetClosestGoalAndPower()
                         power = 75
                     elseif distance > 62 and distance <= 68 then
                         power = 80
-                    elseif distance > 68 and distance <= 71 then
+                    elseif distance > 68 and distance <= 74 then
                         power = 85
                     end
                 end
@@ -70,9 +70,9 @@ local function GetAdjustedAimVector(goalPosition, distance)
     if distance >= 58 and distance <= 62 then
         distanceAdjustment = Vector3.new(0, 31, 0)
     elseif distance > 62 and distance <= 68 then
-        distanceAdjustment = Vector3.new(0, 45, 0)
-    elseif distance > 68 and distance <= 71 then
-        distanceAdjustment = Vector3.new(0, 52, 0)
+        distanceAdjustment = Vector3.new(0, 48, 0)
+    elseif distance > 68 and distance <= 73 then
+        distanceAdjustment = Vector3.new(0, 58, 0)
     end
 
     -- Adjust the goal position with the calculated vector
@@ -95,8 +95,8 @@ local function HighlightPlayerInRange(distance)
         highlight.OutlineTransparency = 0  -- Full opacity for the outline
     end
 
-    -- Check if player is in the distance range (58 - 71)
-    if distance >= 58 and distance <= 71 then
+    -- Check if player is in the distance range (58 - 73)
+    if distance >= 58 and distance <= 73 then
         highlight.Enabled = true  -- Enable the highlight
     else
         highlight.Enabled = false  -- Disable the highlight if out of range
@@ -146,7 +146,7 @@ local function StartLocking()
                 Camera.CFrame = CFrame.new(Camera.CFrame.Position, adjustedGoalPosition) -- Instant lock without delay
             end
 
-            -- Highlight player if in range (58-71)
+            -- Highlight player if in range (58-74)
             HighlightPlayerInRange(closestDistance)
         end
     end)
